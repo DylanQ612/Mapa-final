@@ -11,7 +11,7 @@ connection_url = "mssql+pytds://credito:Cr3d$.23xme@52.167.231.145:51433/Credito
 engine = create_engine(connection_url)
 
 query = """SELECT * FROM GESTIONES_APVAP
-           WHERE CONVERT(date, FECHAVISITA) = DATEADD(day, -14, CONVERT(date, GETDATE()))"""
+           WHERE CONVERT(date, FECHAVISITA) >= DATEADD(day, -7, CONVERT(date, GETDATE()))"""
 df = pd.read_sql(query, engine)
 
 # === LIMPIEZA DE DATOS ===
