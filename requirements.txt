@@ -2,6 +2,5 @@ dash
 pandas
 plotly
 sqlalchemy
-pyodbc
-toml
+sqlalchemy-pytds
 gunicorn
