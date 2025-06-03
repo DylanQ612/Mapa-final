@@ -1,3 +1,6 @@
 dash
 pandas
 plotly
+sqlalchemy
+sqlalchemy-pytds
+gunicorn
