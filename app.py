@@ -7,7 +7,7 @@ import toml
 
 # Leer credenciales desde secrets.toml
 secrets = toml.load("secrets.toml")
-server = secrets["server"]
+server_sql = secrets["server"]
 database = secrets["database"]
 username = secrets["username"]
 password = secrets["password"]
@@ -16,7 +16,7 @@ connection_url = URL.create(
     "mssql+pyodbc",
     username=username,
     password=password,
-    host=server,
+    host=server_sql,
     database=database,
     query={"driver": "ODBC Driver 17 for SQL Server"}
 )
@@ -47,7 +47,7 @@ def cargar_datos():
     return df
 
 app = dash.Dash(__name__)
-server = app.server
+server = app.server  # Gunicorn necesita este objeto WSGI
 
 app.layout = html.Div([
     html.H1("Seguimiento de Gestiones de Cobranza"),
