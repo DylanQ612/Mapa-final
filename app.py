@@ -11,7 +11,8 @@ connection_url = "mssql+pytds://credito:Cr3d$.23xme@52.167.231.145:51433/Credito
 engine = create_engine(connection_url)
 
 query = """SELECT * FROM GESTIONES_APVAP
-           WHERE CONVERT(date, FECHAVISITA) >= DATEADD(day, -7, CONVERT(date, GETDATE()))"""
+           WHERE CONVERT(date, FECHAVISITA) >= DATEADD(day, -7, CONVERT(date, GETDATE()))
+           AND CANAL = 'CAMPO' """
 df = pd.read_sql(query, engine)
 
 # === LIMPIEZA DE DATOS ===
@@ -23,7 +24,7 @@ df = df.rename(columns={
     'IDCLIENTE': 'ID_CLIENTE',
     'NOMBREDECLIENTE': 'CLIENTE',
     'AP_VAP_FACTURA': 'AP_VAP',
-    'POSTURA': 'RESULTADO'
+    'ACCION': 'RESULTADO'
 })
 df = df.dropna(subset=["LATITUD", "LONGITUD", "GESTOR", "HORA_GESTION", "FECHA_GESTION"])
 df = df[(df["LATITUD"] != 0) & (df["LONGITUD"] != 0)]
