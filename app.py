@@ -22,6 +22,7 @@ df = df.rename(columns={
     'HORADEGESTION': 'HORA_GESTION',
     'IDCLIENTE': 'ID_CLIENTE',
     'NOMBREDECLIENTE': 'CLIENTE',
+    'AP_VAP_FACTURA': 'AP_VAP',
     'POSTURA': 'RESULTADO'
 })
 df = df.dropna(subset=["LATITUD", "LONGITUD", "GESTOR", "HORA_GESTION", "FECHA_GESTION"])
@@ -137,6 +138,7 @@ def actualizar_mapa(datos_filtrados, indice_actual):
             f"<b>ID:</b> {row.get('ID_CLIENTE', '')}<br>"
             f"<b>Hora:</b> {row.get('HORA_GESTION', '')}<br>"
             f"<b>Resultado:</b> {row.get('RESULTADO', '')}<br>"
+            f"<b>AP_VAP:</b> {row.get('AP_VAP', '')}<br>"
         ), axis=1
     )
 
