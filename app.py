@@ -1,30 +1,20 @@
-# El contenido ya fue generado antes; se vuelve a guardar tras el reset.
+
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, State, callback_context
 from dash.exceptions import PreventUpdate
 import numpy as np
-import pyodbc
-from sqlalchemy import create_engine, URL
+from sqlalchemy import create_engine
 
-server = '52.167.231.145,51433'
-database = 'CreditoYCobranza'
-username = 'credito'
-password = 'Cr3d$.23xme'
-
-connection_url = URL.create(
-    "mssql+pyodbc",
-    username=username,
-    password=password,
-    host=server,
-    database=database,
-    query={"driver": "ODBC Driver 17 for SQL Server"}
-)
+# === CONEXIÓN A BASE SQL SERVER CON PYTDS ===
+connection_url = "mssql+pytds://credito:Cr3d$.23xme@52.167.231.145:51433/CreditoYCobranza"
 engine = create_engine(connection_url)
 
 query = """SELECT * FROM GESTIONES_APVAP
            WHERE CONVERT(date, FECHAVISITA) = DATEADD(day, -14, CONVERT(date, GETDATE()))"""
 df = pd.read_sql(query, engine)
+
+# === LIMPIEZA DE DATOS ===
 df.columns = df.columns.str.strip().str.upper()
 df = df.rename(columns={
     'NOMBREVENDEDOR': 'GESTOR',
@@ -45,6 +35,7 @@ df["EFECTIVA"] = np.where(df["RESULTADO"].isin(["PP", "DP"]), "Efectiva", "No Ef
 df["COLOR"] = np.where(df["EFECTIVA"] == "Efectiva", "green", "red")
 df = df.sort_values(by=["GESTOR", "FECHA_GESTION", "HORA_ORDEN"])
 
+# === APP DASH ===
 app = Dash(__name__)
 server = app.server
 app.title = "Rutas de Gestores"
@@ -145,7 +136,6 @@ def actualizar_mapa(datos_filtrados, indice_actual):
             f"<b>Gestor:</b> {row.get('GESTOR', '')}<br>"
             f"<b>ID:</b> {row.get('ID_CLIENTE', '')}<br>"
             f"<b>Hora:</b> {row.get('HORA_GESTION', '')}<br>"
-            f"<b>Tipo:</b> {'Presencial' if str(row.get('ACCION', '')).strip().upper() in ['VISITA A CASA', 'VISITA REFERENCIA'] else 'Virtual'}<br>"
             f"<b>Resultado:</b> {row.get('RESULTADO', '')}<br>"
         ), axis=1
     )
@@ -215,5 +205,5 @@ def actualizar_mapa(datos_filtrados, indice_actual):
 
     return fig
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=False, port=8080)
