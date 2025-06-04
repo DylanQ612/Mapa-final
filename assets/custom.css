@@ -1,3 +1,14 @@
+#mapa-container {
+    background-color: transparent !important;
+    height: 100vh !important;
+    width: 100vw !important;
+}
+
+#mapa-gestiones {
+    height: 100% !important;
+    width: 100% !important;
+}
+
 .mapboxgl-ctrl-bottom-right,
 .mapboxgl-ctrl {
     background-color: transparent !important;
