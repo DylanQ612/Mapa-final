@@ -1,6 +1,6 @@
 dash
 plotly
-pymssql
 pandas
-numpy
 sqlalchemy
+pyodbc
+numpy
