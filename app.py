@@ -1,4 +1,3 @@
-
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, State, callback_context
@@ -8,15 +7,8 @@ import urllib
 from sqlalchemy import create_engine
 from dash import ClientsideFunction
 
-# === CONEXIÓN A BASE SQL SERVER CON PYODBC ===
-params = urllib.parse.quote_plus(
-    "DRIVER={ODBC Driver 17 for SQL Server};"
-    "SERVER=52.167.231.145,51433;"
-    "DATABASE=CreditoYCobranza;"
-    "UID=credito;"
-    "PWD=Cr3d$.23xme"
-)
-engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
+=== CONEXIÓN A BASE SQL SERVER CON PYMSSQL ===
+engine = create_engine("mssql+pymssql://credito:Cr3d$.23xme@52.167.231.145:51433/CreditoYCobranza")
 
 # === QUERY CON JOIN A TABLAS PERMANENTES ===
 query = """
