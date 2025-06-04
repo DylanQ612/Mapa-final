@@ -1,30 +1,18 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[11]:
-
 
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, State, callback_context
 from dash.exceptions import PreventUpdate
 import numpy as np
-import urllib
+import urllib.parse
 from sqlalchemy import create_engine
 from dash import ClientsideFunction
 
-# === CONEXIÓN A BASE SQL SERVER CON PYODBC ===
-params = urllib.parse.quote_plus(
-    "DRIVER={ODBC Driver 17 for SQL Server};"
-    "SERVER=52.167.231.145,51433;"
-    "DATABASE=CreditoYCobranza;"
-    "UID=credito;"
-    "PWD=Cr3d$.23xme"
-)
-engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
+# === CONEXIÓN A BASE SQL SERVER CON PYMSSQL (para Render) ===
+engine = create_engine("mssql+pymssql://credito:Cr3d$.23xme@52.167.231.145:51433/CreditoYCobranza")
 
 # === QUERY CON JOIN A TABLAS PERMANENTES ===
-query = """
+query = '''
 SELECT 
     GA.*, 
     TD.DIRECCION, 
@@ -41,7 +29,7 @@ LEFT JOIN
 WHERE 
     CONVERT(date, GA.FECHAVISITA) >= DATEADD(day, -7, CONVERT(date, GETDATE()))
     AND GA.CANAL = 'CAMPO'
-"""
+'''
 df = pd.read_sql(query, engine)
 
 # === LIMPIEZA DE DATOS ===
@@ -250,10 +238,3 @@ app.clientside_callback(
 
 if __name__ == "__main__":
     app.run(debug=False, port=8080)
-
-
-# In[ ]:
-
-
-
-

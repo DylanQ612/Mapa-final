@@ -1,7 +1,6 @@
 dash
-pandas
 plotly
+pymssql
+pandas
+numpy
 sqlalchemy
-sqlalchemy-pytds
-gunicorn
-pyodbc
