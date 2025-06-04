@@ -1,7 +1,10 @@
+.mapboxgl-ctrl-bottom-right,
+.mapboxgl-ctrl {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
 .mapboxgl-ctrl-logo {
     background-color: transparent !important;
     opacity: 0.5 !important;
-    bottom: 10px !important;
-    right: 10px !important;
-    z-index: 1 !important;
 }
