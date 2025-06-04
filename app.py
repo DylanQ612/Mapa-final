@@ -1,17 +1,47 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[11]:
+
+
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, dcc, html, Input, Output, State, callback_context
 from dash.exceptions import PreventUpdate
 import numpy as np
+import urllib
 from sqlalchemy import create_engine
+from dash import ClientsideFunction
 
-# === CONEXIÓN A BASE SQL SERVER CON PYTDS ===
-connection_url = "mssql+pytds://credito:Cr3d$.23xme@52.167.231.145:51433/CreditoYCobranza"
-engine = create_engine(connection_url)
+# === CONEXIÓN A BASE SQL SERVER CON PYODBC ===
+params = urllib.parse.quote_plus(
+    "DRIVER={ODBC Driver 17 for SQL Server};"
+    "SERVER=52.167.231.145,51433;"
+    "DATABASE=CreditoYCobranza;"
+    "UID=credito;"
+    "PWD=Cr3d$.23xme"
+)
+engine = create_engine(f"mssql+pyodbc:///?odbc_connect={params}")
 
-query = """SELECT * FROM GESTIONES_APVAP
-           WHERE CONVERT(date, FECHAVISITA) >= DATEADD(day, -7, CONVERT(date, GETDATE()))
-           AND CANAL = 'CAMPO' """
+# === QUERY CON JOIN A TABLAS PERMANENTES ===
+query = """
+SELECT 
+    GA.*, 
+    TD.DIRECCION, 
+    RG.OBSERVACIONES
+FROM 
+    GESTIONES_APVAP GA
+LEFT JOIN 
+    Tabla_Domicilios TD 
+    ON GA.IDCLIENTE = TD.ID_CLIENTE
+LEFT JOIN 
+    RPGestiones RG 
+    ON GA.IDCLIENTE = RG.IDCliente 
+    AND CONVERT(date, GA.FECHAVISITA) = CONVERT(date, RG.FECHAVISITA)
+WHERE 
+    CONVERT(date, GA.FECHAVISITA) >= DATEADD(day, -7, CONVERT(date, GETDATE()))
+    AND GA.CANAL = 'CAMPO'
+"""
 df = pd.read_sql(query, engine)
 
 # === LIMPIEZA DE DATOS ===
@@ -142,6 +172,8 @@ def actualizar_mapa(datos_filtrados, indice_actual):
             f"<b>Hora:</b> {row.get('HORA_GESTION', '')}<br>"
             f"<b>Resultado:</b> {row.get('RESULTADO', '')}<br>"
             f"<b>AP_VAP:</b> {row.get('AP_VAP', '')}<br>"
+            f"<b>Dirección:</b> {row.get('DIRECCION', '')}<br>"
+            f"<b>Observaciones:</b> {row.get('OBSERVACIONES', '')[:20] + '...' if row.get('OBSERVACIONES') and len(row.get('OBSERVACIONES')) > 20 else row.get('OBSERVACIONES', '')}"
         ), axis=1
     )
 
@@ -210,7 +242,6 @@ def actualizar_mapa(datos_filtrados, indice_actual):
 
     return fig
 
-from dash import ClientsideFunction
 app.clientside_callback(
     ClientsideFunction(namespace='fullscreen', function_name='activarPantallaCompleta'),
     Output('btn-fullscreen', 'n_clicks'),
@@ -219,3 +250,10 @@ app.clientside_callback(
 
 if __name__ == "__main__":
     app.run(debug=False, port=8080)
+
+
+# In[ ]:
+
+
+
+
