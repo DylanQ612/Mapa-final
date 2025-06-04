@@ -2,9 +2,18 @@
 .mapboxgl-ctrl {
     background-color: transparent !important;
     box-shadow: none !important;
+    height: auto !important;
+    width: auto !important;
+    max-height: 50px !important;
+    max-width: 120px !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 .mapboxgl-ctrl-logo {
     background-color: transparent !important;
     opacity: 0.5 !important;
+    height: 30px !important;
+    width: 90px !important;
 }
