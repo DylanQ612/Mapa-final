@@ -20,10 +20,31 @@ df["HORA_ORDEN"] = pd.to_datetime(df["HORA_GESTION"], format="%I:%M%p").dt.time
 
 app.layout = html.Div([
     html.H2("Mapa de Gestiones - Modo Pantalla Completa", style={"textAlign": "center"}),
-    html.Button("Pantalla Completa", id="btn-fullscreen"),
+
     html.Div([
-        dcc.Graph(id="mapa-gestiones", style={'height': '90vh', 'width': '100%'})
-    ], id="mapa-container")
+        html.Label("Seleccione el Gestor:"),
+        dcc.Dropdown(
+            id="gestor-dropdown",
+            options=[{"label": g, "value": g} for g in sorted(df["GESTOR"].unique())],
+            placeholder="Seleccione un gestor..."
+        ),
+        html.Label("Seleccione la Fecha:"),
+        dcc.Dropdown(id="fecha-dropdown"),
+    ], style={'padding': '20px'}),
+
+    html.Div([
+        html.Button("Anterior", id="btn-anterior", n_clicks=0),
+        html.Button("Siguiente", id="btn-siguiente", n_clicks=0),
+        html.Button("Pantalla Completa", id="btn-fullscreen", n_clicks=0),
+        html.Div(id="contador-puntos", style={'display': 'inline-block', 'marginLeft': '20px'})
+    ], style={'textAlign': 'center', 'marginBottom': '10px'}),
+
+    html.Div([
+        dcc.Graph(id="mapa-gestiones", style={'height': '75vh', 'width': '100%'})
+    ], id="mapa-container", style={'position': 'relative'}),
+
+    dcc.Store(id="store-datos"),
+    dcc.Store(id="store-indice", data=1),
 ])
 
 @app.callback(
