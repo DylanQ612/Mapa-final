@@ -10,6 +10,22 @@ from dash import ClientsideFunction
 # === CONEXIÓN A BASE SQL SERVER CON PYMSSQL ===
 engine = create_engine("mssql+pymssql://credito:Cr3d$.23xme@52.167.231.145:51433/CreditoYCobranza")
 
+# === LEER EXCEL DE EMPLEADOS Y PREPARAR DOMICILIO DEL GESTOR ===
+archivo_excel = "/mnt/data/ListaEmpleados (8).xlsx"
+df_empleados = pd.read_excel(archivo_excel, sheet_name=0, skiprows=4)
+
+df_empleados.columns = [
+    "NOMBRE", "APELLIDO_PATERNO", "APELLIDO_MATERNO", "SEXO", "FECHA_NACIMIENTO",
+    "DOMICILIO", "CIUDAD", "COLONIA", "ESTADO", "PAIS",
+    "CODIGO_POSTAL", "RFC", "CURP", "POSICION", "NUMERO_EMPLEADO", "FECHA_ANTIGUEDAD"
+]
+
+df_empleados = df_empleados.dropna(how='all')
+
+df_empleados["GESTOR_NOMBRE"] = df_empleados["NOMBRE"].str.strip() + " " + \
+                                df_empleados["APELLIDO_PATERNO"].str.strip() + " " + \
+                                df_empleados["APELLIDO_MATERNO"].str.strip()
+
 # === QUERY CON JOIN A TABLAS PERMANENTES ===
 query = """
 SELECT 
@@ -42,6 +58,7 @@ df = df.rename(columns={
     'AP_VAP_FACTURA': 'AP_VAP',
     'ACCION': 'RESULTADO'
 })
+
 df = df.dropna(subset=["LATITUD", "LONGITUD", "GESTOR", "HORA_GESTION", "FECHA_GESTION"])
 df = df[(df["LATITUD"] != 0) & (df["LONGITUD"] != 0)]
 df["LATITUD"] = pd.to_numeric(df["LATITUD"], errors='coerce')
@@ -52,6 +69,15 @@ df["HORA_ORDEN"] = pd.to_datetime(df["HORA_GESTION"], format="%I:%M%p", errors='
 df["EFECTIVA"] = np.where(df["RESULTADO"].isin(["PP", "DP"]), "Efectiva", "No Efectiva")
 df["COLOR"] = np.where(df["EFECTIVA"] == "Efectiva", "green", "red")
 df = df.sort_values(by=["GESTOR", "FECHA_GESTION", "HORA_ORDEN"])
+
+# === MERGE DOMICILIO DEL GESTOR ===
+df = df.merge(
+    df_empleados[["GESTOR_NOMBRE", "DOMICILIO"]],
+    left_on="GESTOR",
+    right_on="GESTOR_NOMBRE",
+    how="left"
+)
+df = df.rename(columns={"DOMICILIO": "DOMICILIO_GESTOR"})
 
 # === APP DASH ===
 app = Dash(__name__)
@@ -160,7 +186,8 @@ def actualizar_mapa(datos_filtrados, indice_actual):
             f"<b>Resultado:</b> {row.get('RESULTADO', '')}<br>"
             f"<b>AP_VAP:</b> {row.get('AP_VAP', '')}<br>"
             f"<b>Dirección:</b> {row.get('DIRECCION', '')}<br>"
-            f"<b>Observaciones:</b> {row.get('OBSERVACIONES', '')[:20] + '...' if row.get('OBSERVACIONES') and len(row.get('OBSERVACIONES')) > 20 else row.get('OBSERVACIONES', '')}"
+            f"<b>Observaciones:</b> {row.get('OBSERVACIONES', '')[:20] + '...' if row.get('OBSERVACIONES') and len(row.get('OBSERVACIONES')) > 20 else row.get('OBSERVACIONES', '')}<br>"
+            f"<b>Domicilio Gestor:</b> {row.get('DOMICILIO_GESTOR', 'No disponible')}<br>"
         ), axis=1
     )
 
