@@ -22,9 +22,13 @@ df_empleados.columns = [
 
 df_empleados = df_empleados.dropna(how='all')
 
+# === CREAR GESTOR_NOMBRE Y DOMICILIO_COMPLETO ===
 df_empleados["GESTOR_NOMBRE"] = df_empleados["NOMBRE"].str.strip() + " " + \
                                 df_empleados["APELLIDO_PATERNO"].str.strip() + " " + \
                                 df_empleados["APELLIDO_MATERNO"].str.strip()
+
+df_empleados["DOMICILIO_COMPLETO"] = df_empleados["DOMICILIO"].astype(str).str.strip() + ", " + \
+                                     df_empleados["CIUDAD"].astype(str).str.strip()
 
 # === QUERY CON JOIN A TABLAS PERMANENTES ===
 query = """
@@ -70,14 +74,14 @@ df["EFECTIVA"] = np.where(df["RESULTADO"].isin(["PP", "DP"]), "Efectiva", "No Ef
 df["COLOR"] = np.where(df["EFECTIVA"] == "Efectiva", "green", "red")
 df = df.sort_values(by=["GESTOR", "FECHA_GESTION", "HORA_ORDEN"])
 
-# === MERGE DOMICILIO DEL GESTOR ===
+# === MERGE DOMICILIO_COMPLETO DEL GESTOR ===
 df = df.merge(
-    df_empleados[["GESTOR_NOMBRE", "DOMICILIO"]],
+    df_empleados[["GESTOR_NOMBRE", "DOMICILIO_COMPLETO"]],
     left_on="GESTOR",
     right_on="GESTOR_NOMBRE",
     how="left"
 )
-df = df.rename(columns={"DOMICILIO": "DOMICILIO_GESTOR"})
+df = df.rename(columns={"DOMICILIO_COMPLETO": "DOMICILIO_GESTOR"})
 
 # === APP DASH ===
 app = Dash(__name__)
