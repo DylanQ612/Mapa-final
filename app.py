@@ -11,7 +11,7 @@ from dash import ClientsideFunction
 engine = create_engine("mssql+pymssql://credito:Cr3d$.23xme@52.167.231.145:51433/CreditoYCobranza")
 
 # === LEER EXCEL DE EMPLEADOS Y PREPARAR DOMICILIO DEL GESTOR ===
-archivo_excel = "/mnt/data/ListaEmpleados (8).xlsx"
+archivo_excel = "data/ListaEmpleados.xlsx"
 df_empleados = pd.read_excel(archivo_excel, sheet_name=0, skiprows=4)
 
 df_empleados.columns = [
