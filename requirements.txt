@@ -6,3 +6,4 @@ sqlalchemy-pytds
 gunicorn
 pyodbc
 pymssql
+openpyxl
